@@ -1,7 +1,5 @@
-# ชื่อกระบวนการสายพาน CI/CD
 name: Mandarin Buffet CI/CD Pipeline
 
-# กำหนดเงื่อนไข: ทำงานทันทีเมื่อมีการ Push โค้ดขึ้น branch 'main' หรือ 'master'
 on:
   push:
     branches: [ "main", "master" ]
@@ -9,33 +7,24 @@ on:
     branches: [ "main", "master" ]
 
 jobs:
-  # Job ที่ 1: ตรวจสอบและทดสอบคุณภาพวัตถุดิบ (Build Check)
-  kitchen-qc:
+  kitchen-qc-and-pack:
     runs-on: ubuntu-latest
     steps:
-      - name: 1. Checkout โค้ดจาก GitHub
+      - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: 2. ติดตั้งสภาพแวดล้อม Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: 3. ตรวจสอบ dependencies และทดลอง Build หน้าร้าน
+      - name: Install & Test Build
         run: |
           cd frontend
           npm ci
           npm run build
 
-  # Job ที่ 2: แพ็กอาหารใส่ Container ด้วย Docker (Container Build)
-  docker-pack:
-    needs: kitchen-qc
-    runs-on: ubuntu-latest
-    steps:
-      - name: 1. Checkout โค้ด
-        uses: actions/checkout@v4
-
-      - name: 2. ทดลอง Build Docker Image
+      - name: Build Docker Image
         run: |
           cd frontend
           docker build -t mandarin-buffet-frontend .
